@@ -13,8 +13,8 @@ router.get('/stats', statscontroller.getStats);
 router.get('/v2/all', allcontroller.getAll);
 router.get('/v2/all_with_pos', allwithposcontroller.getAllWithPos);
 router.get('/v2/callsign/:callsign', callsigncontroller.getCallsign);
-router.get('/v2/circle/:lat/:lon/:radius_mni', circlecontroller.getCircle);
-router.get('/v2/closest/:lat/:lon/:radius_mni', closestcontroller.getClosest);
+router.get('/v2/circle/:lat/:lon/:radius_nmi', circlecontroller.getCircle);
+router.get('/v2/closest/:lat/:lon/:radius_nmi', closestcontroller.getClosest);
 router.get('/v2/hex/:hex', hexcontroller.getHex);
 router.get('/v2/reg/:reg', regcontroller.getReg);
 

@@ -4,7 +4,7 @@ const re_api_url = process.env.re_api_url;
 
 exports.getCircle = async (req, res) => {
     try {
-        const response = await axios.get(`${re_api_url}/?circle=${req.params.lat},${req.params.lon},${req.params.radius_mni}&jv2`);
+        const response = await axios.get(`${re_api_url}/?circle=${req.params.lat},${req.params.lon},${req.params.radius_nmi}&jv2`);
         const data = response.data;
         res.json(data);
     } catch (error) {
