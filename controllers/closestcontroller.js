@@ -1,11 +1,10 @@
 const axios = require('axios');
 
-const url = process.env.server_url;
-const urlport = process.env.server_port;
+const re_api_url = process.env.re_api_url;
 
 exports.getClosest = async (req, res) => {
     try {
-        const response = await axios.get(`${url}:${urlport}/?closest=${req.params.lat},${req.params.lon},${req.params.radius_mni}&jv2`);
+        const response = await axios.get(`${re_api_url}/?closest=${req.params.lat},${req.params.lon},${req.params.radius_mni}&jv2`);
         const data = response.data;
         res.json(data);
     } catch (error) {
