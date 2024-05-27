@@ -3,6 +3,8 @@ const axios = require('axios');
 const beast_clients_json_url = process.env.beast_clients_json_url;
 const mlat_clients_json_url = process.env.mlat_clients_json_url;
 
+const airports = require('../data/airports.json');
+
 exports.getStats = async (req, res) => {
     try {
         const beastdataresponse = await axios.get(beast_clients_json_url);
@@ -12,7 +14,26 @@ exports.getStats = async (req, res) => {
         const beaststats = beastdata.clients.find(client => client[1].includes(req.ip));
         const mlatstats = Object.values(mlatdata).find(client => client.source_ip === req.ip);
 
-        if (beaststats || mlatdata) {
+        let closestairport = null;
+
+        if (mlatstats && mlatstats.lat && mlatstats.lon) {
+            const airportsArray = Object.values(airports);
+            closestairport = airportsArray
+                .map(airport => ({
+                    icao: airport.icao,
+                    iata: airport.iata,
+                    name: airport.name,
+                    country: airport.country,
+                    tz: airport.tz,
+                    distance: Math.sqrt(
+                        Math.pow(mlatstats.lat - airport.lat, 2) +
+                        Math.pow(mlatstats.lon - airport.lon, 2)
+                    )
+                }))
+                .reduce((prev, curr) => (prev.distance < curr.distance ? prev : curr), {});
+        }
+
+        if (beaststats || mlatstats) {
             const stats = {
                 clients: {
                     beast: beaststats ? [
@@ -36,7 +57,16 @@ exports.getStats = async (req, res) => {
                             user: mlatstats.user
                         }
                     ] : []
-                }
+                },
+                closest_airport: closestairport ? [
+                    {
+                        icao: closestairport.icao,
+                        iata: closestairport.iata,
+                        name: closestairport.name,
+                        country: closestairport.country,
+                        tz: closestairport.tz
+                    }
+                ] : null
             };
             res.json(stats);
         } else {
@@ -44,7 +74,7 @@ exports.getStats = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        
+
         if (error.code === 'ETIMEDOUT' || error.response?.status === 504) {
             res.status(504).json({ error: 'Gateway Timeout' });
         } else {
