@@ -16,44 +16,52 @@ Receive all aircraft data with position.
 
 ### /api/v2/callsign
 
-Receive aircraft data by Callsign.
+Receive aircraft data by callsign.
+
+### /api/v2/circle
+
+Receive nearby aircraft data by latitude and longitude.
 
 ### /api/v2/closest
 
-Receive nearest aircraft data by latitude and longitude.
+Receive the nearest aircraft data by latitude and longitude.
 
 ### /api/v2/hex
 
-Receive aircraft data by Hex.
+Receive aircraft data by hex.
+
+### /api/v2/reg
+
+Receive aircraft data by registration (reg).
 
 ### /api/stats
 
 Receive data and status of your ADS-B receiver.
 
-## Usage (if you want to use it with your readsb server)
+## Usage (if you want to use it with your readsb server/decoder)
 
-For ADS-B or Mode-S data, it is designed to work with readsb --net-api-port. You might need to edit /etc/default/readsb as follows:
+For ADS-B, MLAT, or Mode-S data, it is designed to work with readsb --net-api-port. You might need to edit /etc/default/readsb as follows:
 
 ```
 NET_OPTIONS="[...] --net-api-port unix:/run/readsb/api.sock"
 ```
 
-If you want to run this API, I recommend using pm2. I won't go into detail here.
+If you want to run this API, I recommend using pm2. I won't go into installation details here.
 
 You may also need to edit the web server configuration to get JSON files for clients.json from /run/mlat-server/.
 
-## Example for lighttpd config for clients.json from /run/mlat-server/ and data/clients.json from readsb:
+## Example configuration for lighttpd to allow specific IP access for clients.json from /run/mlat-server/ and data/clients.json from readsb:
 
 ```
-# If you want to allow more IP access you can use | to add more IP access
-# In this example data/aircraft.json, data/clients.json and every .json file in /mlat would be needed to access by allowed IP
+# If you want to allow more IP access you can use | to add more IPs
+# In this example, data/aircraft.json, data/clients.json, and every .json file in /mlat would be accessible by allowed IPs
 $HTTP["URL"] =~ "^/(data/aircraft\.json|data/clients\.json|mlat/.*\.json)$" {
     $HTTP["remoteip"] !~ "^(127.0.0.1|123.123.123.123)$" {
         url.access-deny = ("")
     }
 }
 
-# /mlat-map/ and /sync/ are just used for mlat-coverage-map remove them if you didn't use
+# /mlat-map/ and /sync/ are used for mlat-coverage-map. Remove them if you don't use them.
 
 alias.url += (
     "/mlat-map/" => "/opt/table/syncmap/",
@@ -62,15 +70,17 @@ alias.url += (
 )
 ```
 
-## Example .env for API:
+## Example .env file for API:
 
-First copy .env_example to .env
+First, copy .env_example to .env:
 
 ```
 cp .env_example .env
 ```
 
-```                
+And then edit .env something like this
+
+```
 beast_clients_json_url="http://example.com(or IP)/data/clients.json"
 mlat_clients_json_url="http://example.com(or IP)/mlat/clients.json"
 
@@ -78,7 +88,7 @@ mlat_clients_json_url="http://example.com(or IP)/mlat/clients.json"
 re_api_url="http://127.0.0.1/re-api/"
 ```
 
-Finally, run the API with pm2.
+Finally, run the API with pm2:
 
 ```
 pm2 start index.js --name 'adsb-ezz456ch-xyz-api'
@@ -107,7 +117,7 @@ server {
 }
 ```
 
-Also don't forget to add readsb re-api to nginx(we will listen only from 127.0.0.1)
+Also, don't forget to add readsb re-api to nginx (and we will listen to requests only from 127.0.0.1):
 
 ```
 server {
