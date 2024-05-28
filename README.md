@@ -24,7 +24,7 @@ Receive nearby aircraft data by latitude and longitude.
 
 ### /api/v2/closest
 
-Receive the nearest aircraft data by latitude and longitude.
+Receive nearest aircraft data by latitude and longitude.
 
 ### /api/v2/hex
 
