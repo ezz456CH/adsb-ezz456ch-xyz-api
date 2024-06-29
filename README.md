@@ -165,7 +165,7 @@ server {
 
         server_name api.example.com;
 
-        location /api/ {
+        location / {
                 proxy_pass http://localhost:3001;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
